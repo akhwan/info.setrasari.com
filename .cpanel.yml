@@ -1,10 +1,16 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/u1494168/public_html/info.setrasari.com/
-    - /bin/cp /uploads/doc $DEPLOYPATH
-    - /bin/cp index.html $DEPLOYPATH
+    # Definisikan direktori target (DEPLOYPATH)
+    - export DEPLOYPATH=/home/u1494168/public_html/info.setrasari.com
+
+    # Gunakan path RELATIF (tanpa garis miring / di awal)
+    - /bin/cp -r uploads $DEPLOYPATH/
+    - /bin/cp index.php $DEPLOYPATH
     - /bin/cp style.css $DEPLOYPATH
     - /bin/cp form.html $DEPLOYPATH
     - /bin/cp logo.png $DEPLOYPATH
     - /bin/cp robots.txt $DEPLOYPATH
+
+    # Perintah cp menggunakan spasi, bukan koma, untuk memisahkan file.
+    # Jika Anda ingin menyalin folder (seperti 'uploads'), Anda mungkin perlu opsi -r:
