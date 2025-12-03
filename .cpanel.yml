@@ -2,7 +2,7 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/u1494168/public_html/info.setrasari.com
-    - /bin/cp -r uploads $DEPLOYPATH/
+    - /bin/cp -r doc $DEPLOYPATH/
     - /bin/cp index.php $DEPLOYPATH
     - /bin/cp style.css $DEPLOYPATH
     - /bin/cp form.html $DEPLOYPATH
