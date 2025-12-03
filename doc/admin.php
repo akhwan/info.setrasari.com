@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Admin - Upload Dokumen Karyawan</title>
+    <meta name="robots" content="noindex, follow">
 </head>
 <body>
     <h1>Upload dokumen (ZIP)</h1>
