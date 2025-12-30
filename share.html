@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesa Share</title>
+    <style>
+        /* CSS tetap sama dengan sebelumnya */
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        .header { display: flex; gap: 10px; margin-bottom: 20px; }
+        #searchBar { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        .btn-add { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        .card { background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
+        .btn-edit { background: #ffc107; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; margin-right: 5px; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
+        .loading { text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sesa Share</h2>
+    <div class="header">
+        <input type="text" id="searchBar" placeholder="Cari link..." onkeyup="renderLinks()">
+        <button class="btn-add" onclick="handleAddLink()">+</button>
+    </div>
+    <div id="loadingStatus" class="loading">Memuat data...</div>
+    <div id="linkContainer"></div>
+</div>
+
+<script>
+    // --- KONFIGURASI DATABASE ---
+    const BIN_ID = '6953c78943b1c97be90e5620';
+    const API_KEY = '$2a$10$0mGBBqhIVVG.mRZoZYr79ebCN88bpFAmdaQlBVWIPqwIB6ZT4kZnO';
+    const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const SECRET_PASS = 'sesa1964';
+
+    let links = [];
+
+    // 1. Ambil data dari server (READ)
+    async function fetchLinks() {
+        try {
+            const response = await fetch(`${URL}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            const data = await response.json();
+            links = data.record;
+            document.getElementById('loadingStatus').style.display = 'none';
+            renderLinks();
+        } catch (error) {
+            alert("Gagal memuat data dari server.");
+        }
+    }
+
+    // 2. Simpan data ke server (UPDATE DATABASE)
+    async function updateRemoteData() {
+        document.getElementById('loadingStatus').style.display = 'block';
+        document.getElementById('loadingStatus').innerText = 'Menyimpan...';
+        
+        try {
+            await fetch(URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify(links)
+            });
+            document.getElementById('loadingStatus').style.display = 'none';
+            renderLinks();
+        } catch (error) {
+            alert("Gagal menyimpan ke server.");
+        }
+    }
+
+    // 3. Tampilkan di UI
+    function renderLinks() {
+        const query = document.getElementById('searchBar').value.toLowerCase();
+        const container = document.getElementById('linkContainer');
+        container.innerHTML = '';
+
+        links.filter(l => l.name.toLowerCase().includes(query)).forEach((link, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => window.open(link.url, '_blank');
+            card.innerHTML = `
+                <span>${link.name}</span>
+                <div>
+                    <button class="btn-edit" onclick="handleEdit(event, ${index})">Edit</button>
+                    <button class="btn-delete" onclick="handleDelete(event, ${index})">Hapus</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // --- FUNGSI INTERAKSI ---
+    function verify() {
+        return prompt("Masukkan Password:") === SECRET_PASS ? true : (alert("Akses ditolak!"), false);
+    }
+
+    async function handleAddLink() {
+        if (!verify()) return;
+        const name = prompt("Nama Link:");
+        const url = prompt("URL:");
+        if (name && url) {
+            links.push({ name, url });
+            await updateRemoteData();
+        }
+    }
+
+    async function handleEdit(e, index) {
+        e.stopPropagation();
+        if (!verify()) return;
+        const newName = prompt("Nama Baru:", links[index].name);
+        const newUrl = prompt("URL Baru:", links[index].url);
+        if (newName && newUrl) {
+            links[index] = { name: newName, url: newUrl };
+            await updateRemoteData();
+        }
+    }
+
+    async function handleDelete(e, index) {
+        e.stopPropagation();
+        if (!verify()) return;
+        if (confirm("Hapus link ini?")) {
+            links.splice(index, 1);
+            await updateRemoteData();
+        }
+    }
+
+    // Jalankan aplikasi
+    fetchLinks();
+</script>
+</body>
+</html>
