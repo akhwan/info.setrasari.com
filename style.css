@@ -57,6 +57,15 @@ li {
     border-radius: 10px;
 }
 
+p {
+    margin: 0 auto;
+    margin-bottom: 28px;
+    width: 368px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 28px;
+}
+
 body {
   background-color: #9CCAFF;
   color: #3C448D;
